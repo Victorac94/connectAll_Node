@@ -30,6 +30,14 @@ deletePost = async (data) => {
     }
 };
 
+getPostsByCategory = async categoryId => {
+    try {
+        return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', [categoryId]);
+    } catch (err) {
+        return err;
+    };
+};
+
 executeQuery = (query, params) => {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, result) => {
@@ -43,5 +51,6 @@ module.exports = {
     getAll: getAll,
     add: add,
     edit: edit,
-    deletePost: deletePost
+    deletePost: deletePost,
+    getPostsByCategory: getPostsByCategory
 };
