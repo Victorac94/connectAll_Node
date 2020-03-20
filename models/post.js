@@ -6,21 +6,21 @@ getAll = async () => {
     }
 };
 
-add = async ({ titulo, cuerpo, imagen, fk_usuario, fk_categoria }) => {
+add = async ({ title, body, picture, fk_user, fk_category }) => {
     try {
-        return await executeQuery('INSERT INTO posts (titulo, cuerpo, imagen, fk_usuario, fk_categoria) VALUES (?,?,?,?,?)', [titulo, cuerpo, imagen, fk_usuario, fk_categoria]);
+        return await executeQuery('INSERT INTO posts (title, body, picture, fk_user, fk_category) VALUES (?,?,?,?,?)', [title, body, picture, fk_user, fk_category]);
     } catch (err) {
         return err;
     }
-}
+};
 
-edit = async ({ titulo, cuerpo, imagen, fk_usuario, fk_categoria, postID }) => {
+edit = async ({ title, body, picture, fk_user, fk_category, postID }) => {
     try {
-        return await executeQuery(`UPDATE posts SET titulo = ?, cuerpo = ?, imagen = ?, fk_usuario = ?, fk_categoria = ? WHERE Id = ?`, [titulo, cuerpo, imagen, fk_usuario, fk_categoria, postID]);
+        return await executeQuery(`UPDATE posts SET title = ?, body = ?, picture = ?, fk_user = ?, fk_category = ? WHERE Id = ?`, [title, body, picture, fk_user, fk_category, postID]);
     } catch (err) {
         return err;
     }
-}
+};
 
 deletePost = async (data) => {
     try {
@@ -28,7 +28,7 @@ deletePost = async (data) => {
     } catch (err) {
         return err;
     }
-}
+};
 
 executeQuery = (query, params) => {
     return new Promise((resolve, reject) => {

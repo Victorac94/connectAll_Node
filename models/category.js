@@ -1,29 +1,35 @@
-const getAll = () => {
-    return new Promise((resolve, reject) => {
-        db.query('select * from categorias', (err, result) => {
-            if (err) reject(err);
-            resolve(result)
-        })
-    })
+const getAll = async () => {
+    try {
+        return await executeQuery('SELECT * FROM categories');
+    } catch (err) {
+        return err;
+    }
 }
 
-const create = ({ nombre }) => {
+const create = async ({ name }) => {
+    try {
+        return await executeQuery('INSERT INTO categories (name) values (?)', [name]);
+    } catch (err) {
+        return err;
+    }
+};
+
+const deleteById = async (category) => {
+    try {
+        return await executeQuery('DELETE FROM categories WHERE id = ?', [category]);
+    } catch (err) {
+        return err;
+    }
+}
+
+executeQuery = (query, params = null) => {
     return new Promise((resolve, reject) => {
-        db.query('insert into categorias (nombre) values (?)', [nombre], (err, result) => {
-            if (err) reject(err);
-            resolve(result);
+        db.query(query, params, (err, result) => {
+            if (err) return reject(err);
+            return resolve(result);
         });
     });
 };
-
-const deleteById = (pCategoriaId) => {
-    return new Promise((resolve, reject) => [
-        db.query('delete from categorias where id = ?', [pCategoriaId], (err, result) => {
-            if (err) reject(err);
-            resolve(result)
-        })
-    ])
-}
 
 module.exports = {
     getAll: getAll,

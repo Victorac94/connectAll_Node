@@ -1,14 +1,26 @@
 const getAll = async () => {
-    return await executeQuery('SELECT * FROM usuarios')
+    try {
+        return await executeQuery('SELECT * FROM users')
+    } catch (err) {
+        return err;
+    }
 }
 
 const getUser = async email => {
-    const row = await executeQuery('SELECT * FROM usuarios WHERE email = ?', [email]);
-    return row[0];
+    try {
+        const row = await executeQuery('SELECT * FROM users WHERE email = ?', [email]);
+        return row[0];
+    } catch (err) {
+        return err;
+    }
 }
 
-const create = async ({ name, lastName, email, password }) => {
-    return await executeQuery('INSERT INTO usuarios (nombre, apellidos, contraseña, email ) values (?,?,?,?)', [name, lastName, password, email]);
+const create = async ({ name, lastName, password, email }) => {
+    try {
+        return await executeQuery('INSERT INTO users (name, last_name, password, email ) values (?,?,?,?)', [name, lastName, password, email]);
+    } catch (err) {
+        return err;
+    }
 }
 
 executeQuery = (query, params = null) => {

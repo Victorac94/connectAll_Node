@@ -1,17 +1,21 @@
 add = async (userId, categories) => {
-    const params = categories.map(cat => `(${userId}, ${cat})`);
+    try {
+        const params = categories.map(cat => `(${userId}, ${cat})`);
 
-    return await executeQuery(`INSERT INTO tbi_usuarios_categorias (fk_usuario, fk_categoria) VALUES ${params.join(', ')}`)
-}
+        return await executeQuery(`INSERT INTO tbi_users_categories (fk_user, fk_category) VALUES ${params.join(', ')}`)
+    } catch (err) {
+        return err;
+    }
+};
 
 executeQuery = (query, params = null) => {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, result) => {
             if (err) reject(err);
             resolve(result);
-        })
-    })
-}
+        });
+    });
+};
 
 module.exports = {
     add: add
