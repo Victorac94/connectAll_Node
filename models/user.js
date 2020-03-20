@@ -1,15 +1,15 @@
 const getAll = () => {
     return new Promise((resolve, reject) => {
-        db.query('select * from usuarios', (err, rows) => {
+        db.query('SELECT * FROM usuarios', (err, rows) => {
             if (err) reject(err);
             resolve(rows);
         })
     })
 }
 
-const create = ({ name, lastName, password, email }) => {
+const create = ({ name, lastName, email, password }) => {
     return new Promise((resolve, reject) => {
-        db.query('insert into usuarios (name, lastName, , password, email ) values (?,?,?,?)', [name, lastName, , password, email], (err, result) => {
+        db.query('INSERT INTO usuarios (nombre, apellidos, contraseña, email ) values (?,?,?,?)', [name, lastName, password, email], (err, result) => {
             if (err) reject(err);
             resolve(result);
         })
