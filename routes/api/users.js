@@ -50,7 +50,46 @@ router.post('/register', [
     } catch (err) {
         res.status(400).json(err);
     }
-
 });
+
+router.post('/login', [
+    check('email', 'El formato de email no es correcto').isEmail(),
+    check('password', 'La password debe tener entre 4 y 16 caracteres').custom((value) => {
+        return (/^[a-zA-Z0-9@*#]{4,16}$/).test(value);
+    })
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(422).json(errors.array())
+        }
+
+        const user = await User.getUser(req.body.email);
+
+        // Check user email exists in DB
+        if (user.email !== req.body.email) {
+            res.status(401).json({ error: 'El email o la contraseña no son válidos' })
+        } else {
+            // Check user password is correct
+            const passwordsMatch = bcrypt.compareSync(req.body.password, user.contraseña);
+
+            if (!passwordsMatch) {
+                res.status(401).json({ error: 'El email o la contraseña no son válidos' })
+            } else {
+                // User email and password are correct. Create token
+                const payload = {
+                    'user-id': user.id,
+                    'expires': moment().add(1, 'days').unix()
+                }
+                const token = jwt.encode(payload, process.env.SECRET_KEY);
+                res.json({ status: 200, token: token })
+            }
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(422).json({ err });
+    }
+})
 
 module.exports = router;
