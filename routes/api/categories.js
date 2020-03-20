@@ -1,22 +1,57 @@
+const jwt = require('jwt-simple');
+const moment = require('moment');
+
 const router = require('express').Router();
 const Category = require('../../models/category');
 
-//GET http://localhost:3000/api/categories
+// Get all categories 
+// GET http://localhost:3000/api/categories
 router.get('/', async (req, res) => {
-    const rows = await Category.getAll();
-    res.json(rows);
+    try {
+        const rows = await Category.getAll();
+        res.json(rows);
+    } catch (err) {
+        res.status(422).json({ error: err });
+    };
 });
 
-//POST http://localhost:3000/api/categories
+// Create a new category
+// POST http://localhost:3000/api/categories
 router.post('/', async (req, res) => {
-    const result = await Category.create(req.body);
-    res.json(result);
+    try {
+        const result = await Category.create(req.body);
+        res.json(result);
+    } catch (err) {
+        res.status(422).json({ error: err });
+    };
 });
 
-//DELETE http://localhost:3000/api/categories
+// Delete a category
+// DELETE http://localhost:3000/api/categories
 router.delete('/', async (req, res) => {
-    const result = await Category.deleteById(req.body.id);
-    res.json(result);
-})
+    try {
+        const result = await Category.deleteById(req.body.id);
+        res.json(result);
+    } catch (err) {
+        res.status(422).json({ error: err });
+    };
+});
+
+// Get categories the user follows
+// GET http://localhost:3000/api/categories/follow
+router.get('/follow', async (req, res) => {
+    try {
+        const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY)
+        // If user session has not expired
+        if (user.expires > moment().unix()) {
+            const result = await Category.getUserCategories(user['user-id']);
+            res.json(result);
+        } else {
+            res.status(401).json({ 'session-expired': 'Your session has expired. Please login again.' })
+        }
+    } catch (err) {
+        res.status(422).json({ error: err });
+    };
+});
 
 module.exports = router

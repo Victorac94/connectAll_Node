@@ -22,6 +22,14 @@ const deleteById = async (category) => {
     }
 }
 
+const getUserCategories = async userId => {
+    try {
+        return await executeQuery('SELECT fk_category FROM tbi_users_categories WHERE fk_user = ?', [userId]);
+    } catch (err) {
+        return err;
+    }
+}
+
 executeQuery = (query, params = null) => {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, result) => {
@@ -34,5 +42,6 @@ executeQuery = (query, params = null) => {
 module.exports = {
     getAll: getAll,
     create: create,
-    deleteById: deleteById
+    deleteById: deleteById,
+    getUserCategories: getUserCategories
 }
