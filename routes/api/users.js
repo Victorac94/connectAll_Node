@@ -6,6 +6,7 @@ const { check, validationResult } = require('express-validator');
 
 
 const User = require('../../models/user');
+const Post = require('../../models/post');
 const userCategories = require('../../models/user-category');
 
 // http://localhost:3000/api/users/register
@@ -69,13 +70,13 @@ router.post('/login', [
 
         // Check user email exists in DB
         if (user.email !== req.body.email) {
-            res.status(401).json({ error: 'El email o la contraseña no son válidos' })
+            res.status(401).json('El email o la contraseña no son válidos')
         } else {
             // Check user password is correct
-            const passwordsMatch = bcrypt.compareSync(req.body.password, user.contraseña);
+            const passwordsMatch = bcrypt.compareSync(req.body.password, user.password);
 
             if (!passwordsMatch) {
-                res.status(401).json({ error: 'El email o la contraseña no son válidos' })
+                res.status(401).json('El email o la contraseña no son válidos')
             } else {
                 // User email and password are correct. Create token
                 const payload = {
@@ -88,8 +89,59 @@ router.post('/login', [
         }
     } catch (err) {
         console.log(err);
-        res.status(422).json({ err });
+        res.status(422).json(err);
     }
+});
+
+// Get my profile info
+// GET - http://localhost:3000/api/users/my-profile
+router.get('/my-profile', async (req, res) => {
+    // Decode user token
+    const userInfo = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
+
+    try {
+        // Check if user's session has expired or not
+        if (userInfo.expires > moment().unix()) {
+            const user = await User.getUserById(userInfo['user-id']);
+            const posts = await Post.getPostsByUserId(userInfo['user-id']);
+            console.log(user);
+            console.log(posts);
+            res.json({ user: user, posts: posts });
+        } else {
+            res.status(401).json('Your session has expired. Please, login')
+        }
+    } catch (err) {
+        res.json(err);
+    }
+});
+
+// Update profile info
+// PUT - http://localhost:3000/api/users/my-profile
+router.put('/my-profile', async (req, res) => {
+    const userToken = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
+
+    try {
+        // Check if user's session has expired or not
+        if (userToken.expires > moment().unix()) {
+            console.log(req.body);
+            console.log(userToken);
+
+            const result = await User.updateUserInfo(userToken['user-id'], req.body);
+            console.log(result);
+            res.json(result);
+
+        } else {
+            res.status(401).json('Your session has expired. Please, login')
+        }
+    } catch (err) {
+        res.json(err);
+    }
+});
+
+// Get info of a user
+// GET - http://localhost:3000/api/users/23
+router.get('/:userId', (req, res) => {
+    res.send('Perfil de un usuario')
 })
 
 module.exports = router;

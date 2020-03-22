@@ -15,9 +15,26 @@ const getUser = async email => {
     }
 }
 
+const getUserById = async userId => {
+    try {
+        const row = await executeQuery('SELECT * FROM users WHERE id = ?', [userId]);
+        return row[0];
+    } catch (err) {
+        return err;
+    }
+}
+
 const create = async ({ name, lastName, password, email }) => {
     try {
         return await executeQuery('INSERT INTO users (name, last_name, password, email ) values (?,?,?,?)', [name, lastName, password, email]);
+    } catch (err) {
+        return err;
+    }
+}
+
+const updateUserInfo = async (userId, userInfo) => {
+    try {
+        return await executeQuery('UPDATE users SET name = ?, last_name = ?, email = ? WHERE id = ?', [userInfo.name, userInfo.last_name, userInfo.email, userId]);
     } catch (err) {
         return err;
     }
@@ -35,5 +52,7 @@ executeQuery = (query, params = null) => {
 module.exports = {
     getAll: getAll,
     getUser: getUser,
-    create: create
+    getUserById: getUserById,
+    create: create,
+    updateUserInfo: updateUserInfo
 }

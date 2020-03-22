@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
         const rows = await Category.getAll();
         res.json(rows);
     } catch (err) {
-        res.status(422).json({ error: err });
+        res.status(422).json(err);
     };
 });
 
@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
         const result = await Category.create(req.body);
         res.json(result);
     } catch (err) {
-        res.status(422).json({ error: err });
+        res.status(422).json(err);
     };
 });
 
@@ -33,7 +33,7 @@ router.delete('/', async (req, res) => {
         const result = await Category.deleteById(req.body.id);
         res.json(result);
     } catch (err) {
-        res.status(422).json({ error: err });
+        res.status(422).json(err);
     };
 });
 
@@ -47,10 +47,10 @@ router.get('/follow', async (req, res) => {
             const result = await Category.getUserCategories(user['user-id']);
             res.json(result);
         } else {
-            res.status(401).json({ 'session-expired': 'Your session has expired. Please login again.' })
+            res.status(401).json('Your session has expired. Please login again.')
         }
     } catch (err) {
-        res.status(422).json({ error: err });
+        res.status(422).json(err);
     };
 });
 

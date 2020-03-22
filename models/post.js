@@ -24,7 +24,7 @@ edit = async ({ title, body, picture, fk_user, fk_category, postID }) => {
 
 deletePost = async (data) => {
     try {
-        return await executeQuery(`DELETE FROM posts WHERE id = ?`, [data.id]);
+        return await executeQuery(`DELETE FROM posts WHERE id = ?`, data.id);
     } catch (err) {
         return err;
     }
@@ -32,11 +32,19 @@ deletePost = async (data) => {
 
 getPostsByCategory = async categoryId => {
     try {
-        return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', [categoryId]);
+        return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', categoryId);
     } catch (err) {
         return err;
     };
 };
+
+getPostsByUserId = async userId => {
+    try {
+        return await executeQuery('SELECT * FROM posts WHERE fk_user = ? ORDER BY creation_date DESC', userId)
+    } catch (err) {
+        return err;
+    }
+}
 
 executeQuery = (query, params) => {
     return new Promise((resolve, reject) => {
@@ -52,5 +60,6 @@ module.exports = {
     add: add,
     edit: edit,
     deletePost: deletePost,
-    getPostsByCategory: getPostsByCategory
+    getPostsByCategory: getPostsByCategory,
+    getPostsByUserId: getPostsByUserId
 };
