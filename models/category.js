@@ -24,7 +24,8 @@ const deleteById = async (category) => {
 
 const getUserCategories = async userId => {
     try {
-        return await executeQuery('SELECT fk_category FROM tbi_users_categories WHERE fk_user = ?', [userId]);
+        // return await executeQuery('SELECT fk_category FROM tbi_users_categories WHERE fk_user = ?', [userId]);
+        return await executeQuery('SELECT c.category_name, c.category_icon, c.id FROM categories as c JOIN tbi_users_categories as tbi WHERE tbi.fk_user = ? AND tbi.fk_category = c.id', [userId]);
     } catch (err) {
         return err;
     }

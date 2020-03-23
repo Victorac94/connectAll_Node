@@ -45,6 +45,7 @@ router.get('/follow', async (req, res) => {
         // If user session has not expired
         if (user.expires > moment().unix()) {
             const result = await Category.getUserCategories(user['user-id']);
+            console.log(result);
             res.json(result);
         } else {
             res.status(401).json('Your session has expired. Please login again.')

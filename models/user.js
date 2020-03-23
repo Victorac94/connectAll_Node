@@ -17,8 +17,19 @@ const getUser = async email => {
 
 const getUserById = async userId => {
     try {
-        const row = await executeQuery('SELECT * FROM users WHERE id = ?', [userId]);
+        const row = await executeQuery('SELECT user_name, user_last_name, user_email, user_picture, id FROM users WHERE id = ?', [userId]);
         return row[0];
+    } catch (err) {
+        return err;
+    }
+}
+
+const getFullUserById = async userId => {
+    try {
+        // const row = await executeQuery('SELECT posts.*, categories.*, users.user_name, users.user_last_name, users.user_email, users.user_picture, users.id FROM posts, categories, tbi_users_categories tbi, users WHERE posts.fk_user = users.id AND tbi.fk_user = users.id AND users.id = ?', userId);
+        const row = await executeQuery('SELECT posts.*, categories.*, users.user_name, users.user_last_name, users.user_email, users.user_picture, users.id FROM posts JOIN users ON posts.fk_user = users.id JOIN tbi_users_categories as tbi JOIN categories ON categories.id = tbi.fk_category AND users.id = tbi.fk_user WHERE users.id = ?', userId);
+        console.log(row);
+        return row;
     } catch (err) {
         return err;
     }
@@ -53,6 +64,7 @@ module.exports = {
     getAll: getAll,
     getUser: getUser,
     getUserById: getUserById,
+    getFullUserById: getFullUserById,
     create: create,
     updateUserInfo: updateUserInfo
 }
