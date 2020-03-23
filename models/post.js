@@ -8,7 +8,7 @@ getAll = async () => {
 
 add = async ({ title, body, picture, fk_user, fk_category }) => {
     try {
-        return await executeQuery('INSERT INTO posts (title, body, picture, fk_user, fk_category) VALUES (?,?,?,?,?)', [title, body, picture, fk_user, fk_category]);
+        return await executeQuery('INSERT INTO posts (post_title, post_body, post_picture, fk_user, fk_category) VALUES (?,?,?,?,?)', [title, body, picture, fk_user, fk_category]);
     } catch (err) {
         return err;
     }
@@ -16,7 +16,7 @@ add = async ({ title, body, picture, fk_user, fk_category }) => {
 
 edit = async ({ title, body, picture, fk_user, fk_category, postID }) => {
     try {
-        return await executeQuery(`UPDATE posts SET title = ?, body = ?, picture = ?, fk_user = ?, fk_category = ? WHERE Id = ?`, [title, body, picture, fk_user, fk_category, postID]);
+        return await executeQuery(`UPDATE posts SET post_title = ?, post_body = ?, post_picture = ?, fk_user = ?, fk_category = ? WHERE Id = ?`, [title, body, picture, fk_user, fk_category, postID]);
     } catch (err) {
         return err;
     }
@@ -32,7 +32,8 @@ deletePost = async (data) => {
 
 getPostsByCategory = async categoryId => {
     try {
-        return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', categoryId);
+        // return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', categoryId);
+        return await executeQuery('SELECT posts.*, user_name, user_last_name, user_picture, users.id FROM posts INNER JOIN users WHERE posts.fk_category = ? AND posts.fk_user = users.id ORDER BY post_creation_date DESC', [categoryId]);
     } catch (err) {
         return err;
     };
@@ -40,7 +41,7 @@ getPostsByCategory = async categoryId => {
 
 getPostsByUserId = async userId => {
     try {
-        return await executeQuery('SELECT * FROM posts WHERE fk_user = ? ORDER BY creation_date DESC', userId)
+        return await executeQuery('SELECT * FROM posts WHERE fk_user = ? ORDER BY post_creation_date DESC', userId)
     } catch (err) {
         return err;
     }

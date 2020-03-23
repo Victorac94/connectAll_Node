@@ -8,7 +8,7 @@ const getAll = async () => {
 
 const create = async ({ name }) => {
     try {
-        return await executeQuery('INSERT INTO categories (name) values (?)', [name]);
+        return await executeQuery('INSERT INTO categories (category_name) values (?)', [name]);
     } catch (err) {
         return err;
     }
