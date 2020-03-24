@@ -99,7 +99,8 @@ router.post('/login', [
 router.get('/:userId', async (req, res) => {
     // Decode user token
     const userInfo = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-    const userId = req.params.userId;
+    const userId = parseInt(req.params.userId);
+    const myProfile = userInfo['user-id'] === userId ? true : false;
 
     try {
         // Check if user's session has expired or not
@@ -110,7 +111,7 @@ router.get('/:userId', async (req, res) => {
             const categories = await Category.getUserCategories(userId);
             // console.log(user);
             // console.log(posts);
-            res.json({ user: user, posts: posts, categories: categories });
+            res.json({ user: user, posts: posts, categories: categories, myProfile: myProfile });
             // res.json({ user: user })
         } else {
             res.status(401).json('Your session has expired. Please, login')
