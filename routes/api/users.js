@@ -37,7 +37,8 @@ router.post('/register', [
         // If the user has been created correctly
         if (result.affectedRows === 1) {
             // Add the categories the user follows to the DB
-            await userCategories.add(result.insertId, req.body.categories);
+            const userId = await userCategories.add(result.insertId, req.body.categories);
+            const user = await User.getUserById(userId);
 
             // Create user token
             const payload = {
@@ -47,7 +48,7 @@ router.post('/register', [
             const token = jwt.encode(payload, process.env.SECRET_KEY);
 
             // Respond success
-            res.json({ status: 200, token: token, userId: result.insertId });
+            res.json({ status: 200, token: token, user: user });
         }
     } catch (err) {
         res.status(400).json(err);
@@ -67,7 +68,7 @@ router.post('/login', [
             return res.status(422).json(errors.array())
         }
 
-        const user = await User.getUser(req.body.email);
+        const user = await User.getUserByEmail(req.body.email);
 
         // Check user email exists in DB
         if (user.user_email !== req.body.email) {
@@ -84,8 +85,10 @@ router.post('/login', [
                     'user-id': user.id,
                     'expires': moment().add(1, 'days').unix()
                 }
+                const userInfo = User.getUserById(user.id)
                 const token = jwt.encode(payload, process.env.SECRET_KEY);
-                res.json({ status: 200, token: token, userId: user.id })
+
+                res.json({ status: 200, token: token, user: userInfo })
             }
         }
     } catch (err) {
@@ -93,6 +96,26 @@ router.post('/login', [
         res.status(422).json(err);
     }
 });
+
+// Get my basic info
+// GET - http://localhost:3000/api/users/basic
+router.get('/basic', async (req, res) => {
+    // Decode user token
+    const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
+
+    if (user.expires > moment().unix()) {
+        try {
+            const userInfo = await User.getUserById(user['user-id']);
+            console.log(userInfo);
+
+            res.json(userInfo);
+        } catch (err) {
+            res.status(422).json(err);
+        }
+    } else {
+        res.status(401).json('Your session has expired. Please, login');
+    }
+})
 
 // Get my profile info
 // GET - http://localhost:3000/api/users/:userId
@@ -105,14 +128,13 @@ router.get('/:userId', async (req, res) => {
     try {
         // Check if user's session has expired or not
         if (userInfo.expires > moment().unix()) {
-            // const user = await User.getFullUserById(userInfo['user-id']);
+            // const fullUser = await User.getFullUserById(userInfo['user-id']);
             const user = await User.getUserById(userId);
             const posts = await Post.getPostsByUserId(userId);
             const categories = await Category.getUserCategories(userId);
-            // console.log(user);
-            // console.log(posts);
+
+            console.log(user, posts, categories);
             res.json({ user: user, posts: posts, categories: categories, myProfile: myProfile });
-            // res.json({ user: user })
         } else {
             res.status(401).json('Your session has expired. Please, login')
         }

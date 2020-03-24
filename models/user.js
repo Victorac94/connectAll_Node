@@ -6,7 +6,7 @@ const getAll = async () => {
     }
 }
 
-const getUser = async email => {
+const getUserByEmail = async email => {
     try {
         const row = await executeQuery('SELECT * FROM users WHERE user_email = ?', [email]);
         return row[0];
@@ -27,7 +27,11 @@ const getUserById = async userId => {
 const getFullUserById = async userId => {
     try {
         // const row = await executeQuery('SELECT posts.*, categories.*, users.user_name, users.user_last_name, users.user_email, users.user_picture, users.id FROM posts, categories, tbi_users_categories tbi, users WHERE posts.fk_user = users.id AND tbi.fk_user = users.id AND users.id = ?', userId);
-        const row = await executeQuery('SELECT posts.*, categories.*, users.user_name, users.user_last_name, users.user_email, users.user_picture, users.id FROM posts JOIN users ON posts.fk_user = users.id JOIN tbi_users_categories as tbi JOIN categories ON categories.id = tbi.fk_category AND users.id = tbi.fk_user WHERE users.id = ?', userId);
+        const row = await executeQuery(`SELECT posts.*, categories.*, users.user_name, users.user_last_name, users.user_email, users.user_picture, users.id 
+        FROM posts JOIN users ON posts.fk_user = users.id 
+        JOIN tbi_users_categories as tbi JOIN categories ON categories.id = tbi.fk_category 
+        WHERE users.id = ? AND users.id = tbi.fk_user 
+        GROUP BY posts.id`, userId);
         console.log(row);
         return row;
     } catch (err) {
@@ -62,7 +66,7 @@ executeQuery = (query, params = null) => {
 
 module.exports = {
     getAll: getAll,
-    getUser: getUser,
+    getUserByEmail: getUserByEmail,
     getUserById: getUserById,
     getFullUserById: getFullUserById,
     create: create,
