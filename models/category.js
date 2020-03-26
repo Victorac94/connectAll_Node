@@ -31,6 +31,14 @@ const getUserCategories = async userId => {
     }
 }
 
+const getCategoriesBySearch = async search => {
+    try {
+        return await executeQuery('SELECT c.id, c.category_name, c.category_icon FROM categories as c WHERE c.category_name LIKE ?', '%' + search + '%');
+    } catch (err) {
+        return err;
+    }
+}
+
 executeQuery = (query, params = null) => {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, result) => {
@@ -44,5 +52,6 @@ module.exports = {
     getAll: getAll,
     create: create,
     deleteById: deleteById,
-    getUserCategories: getUserCategories
+    getUserCategories: getUserCategories,
+    getCategoriesBySearch: getCategoriesBySearch
 }

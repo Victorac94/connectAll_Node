@@ -15,6 +15,14 @@ const getUserByEmail = async email => {
     }
 }
 
+const getUsersBySearch = async search => {
+    try {
+        return await executeQuery('SELECT u.user_name, u.user_last_name, u.user_picture, u.user_register_date, u.id FROM users as u WHERE u.user_name OR u.user_last_name LIKE ?', '%' + search + '%')
+    } catch (err) {
+        return err;
+    }
+}
+
 const getUserById = async userId => {
     try {
         const row = await executeQuery('SELECT user_name, user_last_name, user_email, user_picture, id FROM users WHERE id = ?', [userId]);
@@ -71,5 +79,6 @@ module.exports = {
     getUserById: getUserById,
     getFullUserById: getFullUserById,
     create: create,
-    updateUserInfo: updateUserInfo
+    updateUserInfo: updateUserInfo,
+    getUsersBySearch: getUsersBySearch
 }

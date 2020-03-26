@@ -6,10 +6,20 @@ const Post = require('../../models/post');
 // GET http://localhost:3000/api/posts
 router.get('/', (req, res) => {
     Post.getAll().then(result => {
-        console.log(result);
         res.json(result);
     });
 });
+
+// Get posts from search
+// GET http://localhost:3000/api/posts/search
+router.get('/search', async (req, res) => {
+    try {
+        const response = await Post.getPostsBySearch(req.headers['search-for']);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
+})
 
 // Add a new post
 // POST http://localhost:3000/api/posts/add
@@ -43,11 +53,11 @@ router.delete('/delete', (req, res) => {
 router.get('/category/:categoryId', async (req, res) => {
     try {
         const response = await Post.getPostsByCategory(req.params.categoryId);
-        console.log(response);
         res.json(response);
     } catch (err) {
         res.status(422).json({ error: err });
     }
 });
+
 
 module.exports = router;

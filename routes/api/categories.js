@@ -16,6 +16,17 @@ router.get('/', async (req, res) => {
     };
 });
 
+// Get categories from search
+// GET http://localhost:3000/api/categories/search
+router.get('/search', async (req, res) => {
+    try {
+        const response = await Category.getCategoriesBySearch(req.headers['search-for']);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
+})
+
 // Create a new category
 // POST http://localhost:3000/api/categories
 router.post('/', async (req, res) => {

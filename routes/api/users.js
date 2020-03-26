@@ -97,6 +97,18 @@ router.post('/login', [
     }
 });
 
+// Get profiles from search
+// GET - http://localhost:3000/api/users/search
+router.get('/search', async (req, res) => {
+    try {
+        const response = await User.getUsersBySearch(req.headers['search-for']);
+        console.log(response);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
+})
+
 // Get my basic info
 // GET - http://localhost:3000/api/users/basic
 router.get('/basic', async (req, res) => {
