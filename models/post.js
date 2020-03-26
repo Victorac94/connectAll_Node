@@ -1,6 +1,11 @@
 getAll = async () => {
     try {
-        return await executeQuery('SELECT * FROM posts', null);
+        return await executeQuery(`
+        SELECT posts.*, users.user_name, users.user_last_name, users.user_picture, users.id as user_id, categories.category_name, categories.id as category_id 
+        FROM posts 
+        INNER JOIN users ON posts.fk_user = users.id 
+        INNER JOIN categories ON fk_category = categories.id 
+        ORDER BY post_creation_date DESC`, null);
     } catch (err) {
         return err;
     }
@@ -33,7 +38,14 @@ deletePost = async (data) => {
 getPostsByCategory = async categoryId => {
     try {
         // return await executeQuery('SELECT * FROM posts WHERE fk_category = ? ORDER BY creation_date DESC', categoryId);
-        return await executeQuery('SELECT posts.*, user_name, user_last_name, user_picture, users.id FROM posts INNER JOIN users WHERE posts.fk_category = ? AND posts.fk_user = users.id ORDER BY post_creation_date DESC', [categoryId]);
+        // return await executeQuery('SELECT posts.*, user_name, user_last_name, user_picture, users.id FROM posts INNER JOIN users WHERE posts.fk_category = ? AND posts.fk_user = users.id ORDER BY post_creation_date DESC', [categoryId]);
+        return await executeQuery(`
+        SELECT posts.*, users.user_name, users.user_last_name, users.user_picture, users.id as user_id, categories.category_name, categories.id as category_id 
+        FROM posts 
+        JOIN categories ON posts.fk_category = categories.id 
+        JOIN users ON posts.fk_user = users.id 
+        WHERE categories.id = ?
+        ORDER BY posts.post_creation_date DESC`, categoryId);
     } catch (err) {
         return err;
     };
