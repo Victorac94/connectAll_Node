@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const jwt = require('jwt-simple');
 
 const Post = require('../../models/post');
 
@@ -22,12 +23,17 @@ router.get('/search', async (req, res) => {
 })
 
 // Add a new post
-// POST http://localhost:3000/api/posts/add
-router.post('/new', (req, res) => {
-    Post.add(req.body).then(result => {
-        console.log(result);
-        res.json(result);
-    });
+// POST http://localhost:3000/api/posts/new
+router.post('/new', async (req, res) => {
+    try {
+        const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
+        req.body.fk_user = user['user-id'];
+
+        const response = await Post.add(req.body);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
 });
 
 // Edit a post

@@ -11,17 +11,17 @@ getAll = async () => {
     }
 };
 
-add = async ({ title, body, picture, fk_user, fk_category }) => {
+add = async ({ body, picture, fk_user, fk_category }) => {
     try {
-        return await executeQuery('INSERT INTO posts (post_title, post_body, post_picture, fk_user, fk_category) VALUES (?,?,?,?,?)', [title, body, picture, fk_user, fk_category]);
+        return await executeQuery('INSERT INTO posts (post_body, post_picture, fk_user, fk_category) VALUES (?,?,?,?)', [body, picture, fk_user, fk_category]);
     } catch (err) {
         return err;
     }
 };
 
-edit = async ({ title, body, picture, fk_user, fk_category, postID }) => {
+edit = async ({ body, picture, fk_user, fk_category, postID }) => {
     try {
-        return await executeQuery(`UPDATE posts SET post_title = ?, post_body = ?, post_picture = ?, fk_user = ?, fk_category = ? WHERE Id = ?`, [title, body, picture, fk_user, fk_category, postID]);
+        return await executeQuery(`UPDATE posts SET post_body = ?, post_picture = ?, fk_user = ?, fk_category = ? WHERE Id = ?`, [body, picture, fk_user, fk_category, postID]);
     } catch (err) {
         return err;
     }
