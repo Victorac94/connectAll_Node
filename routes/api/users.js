@@ -10,6 +10,19 @@ const Post = require('../../models/post');
 const Category = require('../../models/category');
 const userCategories = require('../../models/user-category');
 
+
+// MIDDLEWARE to check the user is authenticated
+isAuthenticated = ((req, res, next) => {
+    const token = req.headers['user-token'];
+    const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
+
+    if (tokenDec.expires > moment().unix()) {
+        next();
+    } else {
+        res.status(401).json('Your session has expired. Please login again.')
+    }
+})
+
 // http://localhost:3000/api/users/register
 router.post('/register', [
     check('name', 'El nombre de usuario debe estar entre 3 y 15 caracteres').isLength({ min: 3, max: 15 }).isAlphanumeric(),
@@ -99,7 +112,7 @@ router.post('/login', [
 
 // Get profiles from search
 // GET - http://localhost:3000/api/users/search
-router.get('/search', async (req, res) => {
+router.get('/search', isAuthenticated, async (req, res) => {
     try {
         const response = await User.getUsersBySearch(req.headers['search-for']);
         res.json(response);
@@ -110,7 +123,7 @@ router.get('/search', async (req, res) => {
 
 // Get my basic info
 // GET - http://localhost:3000/api/users/basic
-router.get('/basic', async (req, res) => {
+router.get('/basic', isAuthenticated, async (req, res) => {
     // Decode user token
     const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
 
@@ -130,7 +143,7 @@ router.get('/basic', async (req, res) => {
 
 // Get my profile info
 // GET - http://localhost:3000/api/users/:userId
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', isAuthenticated, async (req, res) => {
     // Decode user token
     const userInfo = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
     const userId = parseInt(req.params.userId);
@@ -156,7 +169,7 @@ router.get('/:userId', async (req, res) => {
 
 // Update profile info
 // PUT - http://localhost:3000/api/users/my-profile
-router.put('/my-profile', async (req, res) => {
+router.put('/my-profile', isAuthenticated, async (req, res) => {
     const userToken = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
 
     try {

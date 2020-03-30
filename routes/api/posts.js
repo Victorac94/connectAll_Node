@@ -1,7 +1,20 @@
 const router = require('express').Router();
 const jwt = require('jwt-simple');
+const moment = require('moment');
 
 const Post = require('../../models/post');
+
+// MIDDLEWARE to check the user is authenticated
+router.use((req, res, next) => {
+    const token = req.headers['user-token'];
+    const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
+
+    if (tokenDec.expires > moment().unix()) {
+        next();
+    } else {
+        res.status(401).json('Your session has expired. Please login again.')
+    }
+})
 
 // Get all posts
 // GET http://localhost:3000/api/posts

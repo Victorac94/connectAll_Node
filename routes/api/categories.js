@@ -5,6 +5,18 @@ const router = require('express').Router();
 const Category = require('../../models/category');
 const UserCategory = require('../../models/user-category');
 
+// MIDDLEWARE to check the user is authenticated
+router.use((req, res, next) => {
+    const token = req.headers['user-token'];
+    const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
+
+    if (tokenDec.expires > moment().unix()) {
+        next();
+    } else {
+        res.status(401).json('Your session has expired. Please login again.')
+    }
+})
+
 // Get all categories 
 // GET http://localhost:3000/api/categories
 router.get('/', async (req, res) => {
