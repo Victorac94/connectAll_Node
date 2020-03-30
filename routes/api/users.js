@@ -102,7 +102,6 @@ router.post('/login', [
 router.get('/search', async (req, res) => {
     try {
         const response = await User.getUsersBySearch(req.headers['search-for']);
-        console.log(response);
         res.json(response);
     } catch (err) {
         res.status(422).json(err);

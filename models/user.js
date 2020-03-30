@@ -17,7 +17,7 @@ const getUserByEmail = async email => {
 
 const getUsersBySearch = async search => {
     try {
-        return await executeQuery('SELECT u.user_name, u.user_last_name, u.user_picture, u.user_register_date, u.id FROM users as u WHERE u.user_name OR u.user_last_name LIKE ?', '%' + search + '%')
+        return await executeQuery('SELECT u.user_name, u.user_last_name, u.user_picture, u.user_register_date, u.id FROM users as u WHERE CONCAT_WS(" ", u.user_name, u.user_last_name) LIKE ?', '%' + search + '%')
     } catch (err) {
         return err;
     }
