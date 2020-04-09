@@ -15,11 +15,15 @@ const userCategories = require('../../models/user-category');
 
 // http://localhost:3000/api/users/register
 router.post('/register', [
-    check('name', 'El nombre de usuario debe estar entre 3 y 15 caracteres').isLength({ min: 3, max: 15 }).isAlphanumeric(),
-    check('lastName', 'El apellido debe estar entre 3 y 30 caracteres').isLength({ min: 3, max: 30 }).isAlphanumeric(),
+    check('name', 'El nombre de usuario debe estar entre 3 y 15 caracteres').isLength({ min: 3, max: 15 }).custom((value) => {
+        return (/^[a-zA-Z0-9@*# ]{3,15}$/).test(value);
+    }),
+    check('lastName', 'El apellido debe estar entre 3 y 30 caracteres').isLength({ min: 3, max: 30 }).custom((value) => {
+        return (/^[a-zA-Z0-9@*# ]{3,30}$/).test(value);
+    }),
     check('email', 'El formato de email no es correcto').isEmail(),
     check('password', 'La password debe tener entre 4 y 16 caracteres').custom((value) => {
-        return (/^[a-zA-Z0-9@*#]{4,16}$/).test(value);
+        return (/^[a-zA-Z0-9@*# ]{4,16}$/).test(value);
     }),
     /* Check the format of the categories array received is correct.
         -Correct: [1, 20, 3] or [1] or [200, 300, 1]
@@ -40,9 +44,9 @@ router.post('/register', [
         // If the user has been created correctly
         if (result.affectedRows === 1) {
             // Add the categories the user follows to the DB
-            const userId = await userCategories.add(result.insertId, req.body.categories);
-            const user = await User.getUserById(userId);
-
+            await userCategories.add(result.insertId, req.body.categories);
+            const user = await User.getUserById(result.insertId);
+            console.log(user);
             // Create user token
             const payload = {
                 'user-id': result.insertId,
@@ -88,7 +92,7 @@ router.post('/login', [
                     'user-id': user.id,
                     'expires': moment().add(1, 'days').unix()
                 }
-                const userInfo = User.getUserById(user.id)
+                const userInfo = await User.getUserById(user.id)
                 const token = jwt.encode(payload, process.env.SECRET_KEY);
 
                 res.json({ status: 200, token: token, user: userInfo })
