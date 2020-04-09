@@ -2,20 +2,11 @@ const jwt = require('jwt-simple');
 const moment = require('moment');
 const router = require('express').Router();
 
+const { isAuthenticated } = require('../../middlewares/index');
+
 const Category = require('../../models/category');
 const UserCategory = require('../../models/user-category');
 
-// MIDDLEWARE to check the user is authenticated
-router.use((req, res, next) => {
-    const token = req.headers['user-token'];
-    const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
-
-    if (tokenDec.expires > moment().unix()) {
-        next();
-    } else {
-        res.status(401).json('Your session has expired. Please login again.')
-    }
-})
 
 // Get all categories 
 // GET http://localhost:3000/api/categories
@@ -30,7 +21,7 @@ router.get('/', async (req, res) => {
 
 // Get categories from search
 // GET http://localhost:3000/api/categories/search
-router.get('/search', async (req, res) => {
+router.get('/search', isAuthenticated, async (req, res) => {
     try {
         const response = await Category.getCategoriesBySearch(req.headers['search-for']);
         res.json(response);
@@ -41,7 +32,7 @@ router.get('/search', async (req, res) => {
 
 // Create a new category
 // POST http://localhost:3000/api/categories
-router.post('/', async (req, res) => {
+router.post('/', isAuthenticated, async (req, res) => {
     try {
         const result = await Category.create(req.body);
         res.json(result);
@@ -52,7 +43,7 @@ router.post('/', async (req, res) => {
 
 // Delete a category
 // DELETE http://localhost:3000/api/categories
-router.delete('/', async (req, res) => {
+router.delete('/', isAuthenticated, async (req, res) => {
     try {
         const result = await Category.deleteById(req.body.id);
         res.json(result);
@@ -63,7 +54,7 @@ router.delete('/', async (req, res) => {
 
 // Get categories the user follows
 // GET http://localhost:3000/api/categories/follow
-router.get('/follow', async (req, res) => {
+router.get('/follow', isAuthenticated, async (req, res) => {
     try {
         const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY)
         // If user session has not expired
@@ -81,7 +72,7 @@ router.get('/follow', async (req, res) => {
 
 // Delete user categories
 // DELETE http://localhost:3000/api/categories/user
-router.delete('/user', async (req, res) => {
+router.delete('/user', isAuthenticated, async (req, res) => {
     try {
         const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
         // If user session has not expired

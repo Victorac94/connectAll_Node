@@ -4,24 +4,14 @@ const moment = require('moment');
 const jwt = require('jwt-simple');
 const { check, validationResult } = require('express-validator');
 
+const { isAuthenticated } = require('../../middlewares/index');
+
 
 const User = require('../../models/user');
 const Post = require('../../models/post');
 const Category = require('../../models/category');
 const userCategories = require('../../models/user-category');
 
-
-// MIDDLEWARE to check the user is authenticated
-isAuthenticated = ((req, res, next) => {
-    const token = req.headers['user-token'];
-    const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
-
-    if (tokenDec.expires > moment().unix()) {
-        next();
-    } else {
-        res.status(401).json('Your session has expired. Please login again.')
-    }
-})
 
 // http://localhost:3000/api/users/register
 router.post('/register', [
