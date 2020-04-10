@@ -57,14 +57,8 @@ router.delete('/', isAuthenticated, async (req, res) => {
 router.get('/follow', isAuthenticated, async (req, res) => {
     try {
         const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY)
-        // If user session has not expired
-        if (user.expires > moment().unix()) {
-            const result = await Category.getUserCategories(user['user-id']);
-            console.log(result);
-            res.json(result);
-        } else {
-            res.status(401).json('Your session has expired. Please login again.')
-        }
+        const result = await Category.getUserCategories(user['user-id']);
+        res.json(result);
     } catch (err) {
         res.status(422).json(err);
     };
@@ -75,17 +69,12 @@ router.get('/follow', isAuthenticated, async (req, res) => {
 router.delete('/user', isAuthenticated, async (req, res) => {
     try {
         const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-        // If user session has not expired
-        if (user.expires > moment().unix()) {
-            const userId = user['user-id'];
-            const category = req.headers['delete-categories'];
+        const userId = user['user-id'];
+        const category = req.headers['delete-categories'];
 
-            const result = await UserCategory.deleteUserCategory(userId, category);
-            console.log(result);
-            res.json(result);
-        } else {
-            res.status(401).json('Your session has expired. Please login again.');
-        }
+        const result = await UserCategory.deleteUserCategory(userId, category);
+        console.log(result);
+        res.json(result);
     } catch (err) {
         res.status(422).json(err);
     }

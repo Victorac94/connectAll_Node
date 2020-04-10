@@ -39,17 +39,17 @@ router.post('/register', [
 
         req.body.password = bcrypt.hashSync(req.body.password, 10); // El 10 es el número de veces que encripta la contraseña
 
-        const result = await User.create(req.body);
+        const userCreated = await User.create(req.body);
 
         // If the user has been created correctly
-        if (result.affectedRows === 1) {
+        if (userCreated.affectedRows === 1) {
             // Add the categories the user follows to the DB
-            await userCategories.add(result.insertId, req.body.categories);
-            const user = await User.getUserById(result.insertId);
+            await userCategories.add(userCreated.insertId, req.body.categories);
+            const user = await User.getUserById(userCreated.insertId);
             console.log(user);
             // Create user token
             const payload = {
-                'user-id': result.insertId,
+                'user-id': userCreated.insertId,
                 'expires': moment().add(1, 'days').unix()
             };
             const token = jwt.encode(payload, process.env.SECRET_KEY);
@@ -65,7 +65,7 @@ router.post('/register', [
 router.post('/login', [
     check('email', 'El formato de email no es correcto').isEmail(),
     check('password', 'La password debe tener entre 4 y 16 caracteres').custom((value) => {
-        return (/^[a-zA-Z0-9@*#]{4,16}$/).test(value);
+        return (/^[a-zA-Z0-9@*# ]{4,16}$/).test(value);
     })
 ], async (req, res) => {
     try {
@@ -79,13 +79,13 @@ router.post('/login', [
 
         // Check user email exists in DB
         if (user.user_email !== req.body.email) {
-            res.status(401).json('El email o la contraseña no son válidos')
+            res.status(401).json('Incorrect email or password')
         } else {
             // Check user password is correct
             const passwordsMatch = bcrypt.compareSync(req.body.password, user.user_password);
 
             if (!passwordsMatch) {
-                res.status(401).json('El email o la contraseña no son válidos')
+                res.status(401).json('Incorrect email or password')
             } else {
                 // User email and password are correct. Create token
                 const payload = {
@@ -121,17 +121,12 @@ router.get('/basic', isAuthenticated, async (req, res) => {
     // Decode user token
     const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
 
-    if (user.expires > moment().unix()) {
-        try {
-            const userInfo = await User.getUserById(user['user-id']);
-            console.log(userInfo);
+    try {
+        const userInfo = await User.getUserById(user['user-id']);
 
-            res.json(userInfo);
-        } catch (err) {
-            res.status(422).json(err);
-        }
-    } else {
-        res.status(401).json('Your session has expired. Please, login');
+        res.json(userInfo);
+    } catch (err) {
+        res.status(422).json(err);
     }
 })
 
@@ -144,20 +139,15 @@ router.get('/:userId', isAuthenticated, async (req, res) => {
     const myProfile = userInfo['user-id'] === userId ? true : false;
 
     try {
-        // Check if user's session has expired or not
-        if (userInfo.expires > moment().unix()) {
-            // const fullUser = await User.getFullUserById(userInfo['user-id']);
-            const user = await User.getUserById(userId);
-            const posts = await Post.getPostsByUserId(userId);
-            const categories = await Category.getUserCategories(userId);
+        // const fullUser = await User.getFullUserById(userInfo['user-id']);
+        const user = await User.getUserById(userId);
+        const posts = await Post.getPostsByUserId(userId);
+        const categories = await Category.getUserCategories(userId);
 
-            console.log(user, posts, categories);
-            res.json({ user: user, posts: posts, categories: categories, myProfile: myProfile });
-        } else {
-            res.status(401).json('Your session has expired. Please, login')
-        }
+        console.log(user, posts, categories);
+        res.json({ user: user, posts: posts, categories: categories, myProfile: myProfile });
     } catch (err) {
-        res.json(err);
+        res.status(422).json(err);
     }
 });
 
@@ -167,27 +157,15 @@ router.put('/my-profile', isAuthenticated, async (req, res) => {
     const userToken = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
 
     try {
-        // Check if user's session has expired or not
-        if (userToken.expires > moment().unix()) {
-            console.log(req.body);
-            console.log(userToken);
+        console.log(req.body);
 
-            const result = await User.updateUserInfo(userToken['user-id'], req.body);
-            console.log(result);
-            res.json(result);
+        const result = await User.updateUserInfo(userToken['user-id'], req.body);
+        console.log(result);
+        res.json(result);
 
-        } else {
-            res.status(401).json('Your session has expired. Please, login')
-        }
     } catch (err) {
-        res.json(err);
+        res.status(422).json(err);
     }
 });
-
-// Get info of a user
-// GET - http://localhost:3000/api/users/23
-router.get('/:userId', (req, res) => {
-    res.send('Perfil de un usuario')
-})
 
 module.exports = router;

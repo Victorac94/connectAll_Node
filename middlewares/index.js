@@ -12,7 +12,7 @@ function isAuthenticated(req, res, next) {
         if (tokenDec.expires > moment().unix()) {
             next();
         } else {
-            res.status(401).json('Your session has expired. Please login again.');
+            res.status(401).json('Your session has expired. Please login.');
         }
     } else {
         // User has not registered yet or has deleted the token from localStorage
