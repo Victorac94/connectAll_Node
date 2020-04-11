@@ -56,8 +56,7 @@ router.delete('/', isAuthenticated, async (req, res) => {
 // GET http://localhost:3000/api/categories/follow
 router.get('/follow', isAuthenticated, async (req, res) => {
     try {
-        const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY)
-        const result = await Category.getUserCategories(user['user-id']);
+        const result = await Category.getUserCategories(req.decodedUserToken['user-id']);
         res.json(result);
     } catch (err) {
         res.status(422).json(err);
@@ -68,8 +67,7 @@ router.get('/follow', isAuthenticated, async (req, res) => {
 // DELETE http://localhost:3000/api/categories/user
 router.delete('/user', isAuthenticated, async (req, res) => {
     try {
-        const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-        const userId = user['user-id'];
+        const userId = req.decodedUserToken['user-id'];
         const category = req.headers['delete-categories'];
 
         const result = await UserCategory.deleteUserCategory(userId, category);

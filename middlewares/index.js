@@ -10,6 +10,7 @@ function isAuthenticated(req, res, next) {
         const tokenDec = jwt.decode(token, process.env.SECRET_KEY);
 
         if (tokenDec.expires > moment().unix()) {
+            req.decodedUserToken = tokenDec;
             next();
         } else {
             res.status(401).json('Your session has expired. Please login.');

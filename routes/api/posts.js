@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const jwt = require('jwt-simple');
-const moment = require('moment');
 
 const { isAuthenticated } = require('../../middlewares/index');
 
@@ -30,8 +29,7 @@ router.get('/search', isAuthenticated, async (req, res) => {
 // POST http://localhost:3000/api/posts/new
 router.post('/new', isAuthenticated, async (req, res) => {
     try {
-        const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-        req.body.fk_user = user['user-id'];
+        req.body.fk_user = req.decodedUserToken['user-id'];
 
         const response = await Post.add(req.body);
         res.json(response);
@@ -42,20 +40,26 @@ router.post('/new', isAuthenticated, async (req, res) => {
 
 // Edit a post
 // PUT http://localhost:3000/api/posts/edit
-router.put('/edit', isAuthenticated, (req, res) => {
-    Post.edit(req.body).then(result => {
-        console.log(result);
-        res.json(result);
-    });
+router.put('/edit', isAuthenticated, async (req, res) => {
+    try {
+        const response = await Post.edit(req.body);
+        console.log(response);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
 });
 
 // Delete a post
 // DELETE http://localhost:3000/api/posts/delete
-router.delete('/delete', isAuthenticated, (req, res) => {
-    Post.deletePost(req.body).then(result => {
-        console.log(result);
-        res.json(result);
-    });
+router.delete('/delete', isAuthenticated, async (req, res) => {
+    try {
+        const response = await Post.deletePost(req.body);
+        console.log(response);
+        res.json(response);
+    } catch (err) {
+        res.status(422).json(err);
+    }
 });
 
 // Get posts from a category

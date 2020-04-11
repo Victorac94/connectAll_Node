@@ -118,11 +118,8 @@ router.get('/search', isAuthenticated, async (req, res) => {
 // Get my basic info
 // GET - http://localhost:3000/api/users/basic
 router.get('/basic', isAuthenticated, async (req, res) => {
-    // Decode user token
-    const user = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-
     try {
-        const userInfo = await User.getUserById(user['user-id']);
+        const userInfo = await User.getUserById(req.decodedUserToken['user-id']);
 
         res.json(userInfo);
     } catch (err) {
@@ -130,16 +127,15 @@ router.get('/basic', isAuthenticated, async (req, res) => {
     }
 })
 
-// Get my profile info
+// Get profile info
 // GET - http://localhost:3000/api/users/:userId
 router.get('/:userId', isAuthenticated, async (req, res) => {
-    // Decode user token
-    const userInfo = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
     const userId = parseInt(req.params.userId);
-    const myProfile = userInfo['user-id'] === userId ? true : false;
+    const myProfile = req.decodedUserToken['user-id'] === userId ? true : false;
 
     try {
-        // const fullUser = await User.getFullUserById(userInfo['user-id']);
+        // const fullUser = await User.getFullUserById(userId);
+
         const user = await User.getUserById(userId);
         const posts = await Post.getPostsByUserId(userId);
         const categories = await Category.getUserCategories(userId);
@@ -154,12 +150,10 @@ router.get('/:userId', isAuthenticated, async (req, res) => {
 // Update profile info
 // PUT - http://localhost:3000/api/users/my-profile
 router.put('/my-profile', isAuthenticated, async (req, res) => {
-    const userToken = jwt.decode(req.headers['user-token'], process.env.SECRET_KEY);
-
     try {
         console.log(req.body);
 
-        const result = await User.updateUserInfo(userToken['user-id'], req.body);
+        const result = await User.updateUserInfo(req.decodedUserToken['user-id'], req.body);
         console.log(result);
         res.json(result);
 
