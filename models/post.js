@@ -53,7 +53,13 @@ getPostsByCategory = async categoryId => {
 
 getPostsByUserId = async userId => {
     try {
-        return await executeQuery('SELECT * FROM posts WHERE fk_user = ? ORDER BY post_creation_date DESC', userId)
+        return await executeQuery(`
+        SELECT posts.*, users.user_name, users.user_last_name, users.user_picture, users.id as user_id, categories.category_name, categories.category_icon, categories.id as category_id 
+        FROM posts 
+        JOIN users ON posts.fk_user = users.id
+        JOIN categories ON posts.fk_category = categories.id
+        WHERE posts.fk_user = ? 
+        ORDER BY post_creation_date DESC`, userId)
     } catch (err) {
         return err;
     }

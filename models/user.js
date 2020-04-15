@@ -58,7 +58,7 @@ const create = async ({ name, lastName, password, email }) => {
 
 const updateUserInfo = async (userId, userInfo) => {
     try {
-        return await executeQuery('UPDATE users SET user_name = ?, user_last_name = ?, user_email = ? WHERE id = ?', [userInfo.name, userInfo.last_name, userInfo.email, userId]);
+        return await executeQuery('UPDATE users SET user_name = ?, user_last_name = ?, user_email = ? WHERE id = ?', [userInfo.user_name, userInfo.user_last_name, userInfo.user_email, userId]);
     } catch (err) {
         return err;
     }
