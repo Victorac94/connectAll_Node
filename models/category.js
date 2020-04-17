@@ -1,6 +1,6 @@
 const getAll = async () => {
     try {
-        return await executeQuery('SELECT * FROM categories');
+        return await executeQuery('SELECT * FROM categories ORDER BY categories.category_name');
     } catch (err) {
         return err;
     }
@@ -25,7 +25,7 @@ const deleteById = async (category) => {
 const getUserCategories = async userId => {
     try {
         // return await executeQuery('SELECT fk_category FROM tbi_users_categories WHERE fk_user = ?', [userId]);
-        return await executeQuery('SELECT c.category_name, c.category_icon, c.id FROM categories as c JOIN tbi_users_categories as tbi WHERE tbi.fk_user = ? AND tbi.fk_category = c.id', [userId]);
+        return await executeQuery('SELECT c.category_name, c.category_icon, c.id FROM categories as c JOIN tbi_users_categories as tbi WHERE tbi.fk_user = ? AND tbi.fk_category = c.id ORDER BY c.category_name', [userId]);
     } catch (err) {
         return err;
     }
@@ -33,7 +33,7 @@ const getUserCategories = async userId => {
 
 const getCategoriesBySearch = async search => {
     try {
-        return await executeQuery('SELECT c.id, c.category_name, c.category_icon FROM categories as c WHERE c.category_name LIKE ?', '%' + search + '%');
+        return await executeQuery('SELECT c.id, c.category_name, c.category_icon FROM categories as c WHERE c.category_name LIKE ? ORDER BY c.category_name', '%' + search + '%');
     } catch (err) {
         return err;
     }

@@ -54,9 +54,15 @@ router.put('/edit', isAuthenticated, async (req, res) => {
 // DELETE http://localhost:3000/api/posts/delete
 router.delete('/delete', isAuthenticated, async (req, res) => {
     try {
-        const response = await Post.deletePost(req.body);
-        console.log(response);
-        res.json(response);
+        const post = JSON.parse(req.headers.post);
+
+        if (post.user_id === req.decodedUserToken['user-id']) {
+            const response = await Post.deletePost(post);
+            res.json(response);
+        }
+        else {
+            res.status(422).json('Could not delete the post');
+        }
     } catch (err) {
         res.status(422).json(err);
     }

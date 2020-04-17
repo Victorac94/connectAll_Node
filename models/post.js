@@ -73,7 +73,8 @@ getPostsBySearch = async search => {
         JOIN users ON posts.fk_user = users.id
         JOIN categories ON posts.fk_category = categories.id
         WHERE posts.post_body LIKE ?
-        GROUP BY posts.post_creation_date`, '%' + search + '%')
+        GROUP BY posts.post_creation_date
+        ORDER BY posts.post_creation_date DESC`, '%' + search + '%')
     } catch (err) {
         return err;
     }

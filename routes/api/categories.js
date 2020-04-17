@@ -63,12 +63,26 @@ router.get('/follow', isAuthenticated, async (req, res) => {
     };
 });
 
-// Delete user categories
+// Follow a new category
+// POST http://localhost:3000/api/categories/follow
+router.post('/follow', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.decodedUserToken['user-id'];
+
+        const result = await UserCategory.add(userId, [req.body.categoryId])
+        console.log(result);
+        res.json(result);
+    } catch (err) {
+        res.status(422).json(err);
+    }
+})
+
+// Unfollow a category
 // DELETE http://localhost:3000/api/categories/user
 router.delete('/user', isAuthenticated, async (req, res) => {
     try {
         const userId = req.decodedUserToken['user-id'];
-        const category = req.headers['delete-categories'];
+        const category = req.headers['delete-category'];
 
         const result = await UserCategory.deleteUserCategory(userId, category);
         console.log(result);
